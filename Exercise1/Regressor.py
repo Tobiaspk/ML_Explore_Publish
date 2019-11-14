@@ -16,6 +16,7 @@ class Regressor:
         cvlosses = np.zeros(k);
         
         for i in range(len(self.parameters)):
+            print(self.name + " parameter " + str(i+1) + "/" + str(len(self.parameters)) + " done")
             l = 0;
             for train_index, test_index in ds.generate_cv(k=k):
                 cvlosses[l], mod = self.fit_one(y.loc[train_index], 
@@ -35,7 +36,7 @@ class Regressor:
             param = self.parameters[param_i]
             
             # set parameters
-            model_temp = self.set_params(param = param)
+            model_temp = self.set_params(param=param)
             
             # fit model
             model_temp.fit(y=y, X=x)
