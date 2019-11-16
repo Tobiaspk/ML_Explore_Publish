@@ -3,7 +3,9 @@ import pandas as pd
 import seaborn as sns
 from time import time
 from sklearn.model_selection import KFold
+from plot_learning_curve import *
 from scipy import stats
+import matplotlib.patches as mpatches
 
 class DataSetting:
     def __init__(self, y, x, models, loss_function, k=5):
@@ -78,6 +80,39 @@ class DataSetting:
     def barplot_losses_min(self, ax=None, *args):
         losses_min = self.min_losses()
         sns.barplot(list(losses_min.keys()), list(losses_min.values()), ax=ax, *args)
+
+    def plot_model_performance(self, path = ''):
+        k = 0
+        size = sum((len(mod.parameters)>1) for mod in self.models)
+        fig, axes = plt.subplots(2,size, sharex='col', sharey='row')
+
+        for mod in self.models:
+            if(len(mod.parameters) >1):
+                tempModel = mod.set_params(mod.parameters[mod.best_params])
+                title = mod.name + ": best Parametersettings"
+                plot_learning_curve(tempModel, title, self.x, self.y, axis = axes[0,k])
+
+                tempModel = mod.set_params(mod.parameters[mod.worst_params])
+                title = mod.name + ": worst Parametersettings"
+                plot_learning_curve(tempModel, title, self.x, self.y, axis = axes[1,k])
+
+                k += 1
+        #plt.grid()
+        #plt.xlabel("Training examples")
+        #plt.ylabel("Score")
+        #plt.savefig(path)
+        red_patch = mpatches.Patch(color='red', label='Training score')
+        green_patch = mpatches.Patch(color='green', label='Cross-validation score')
+        fig.legend(handles=[red_patch,green_patch])
+        fig.text(0.5, 0.04, 'Training Examples', ha='center')
+        fig.text(0.04, 0.5, 'Score', va='center', rotation='vertical')
+        plt.show()
+
+
+
+
+
+
                       
                       
                       
