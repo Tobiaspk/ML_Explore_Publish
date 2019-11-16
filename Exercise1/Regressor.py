@@ -9,14 +9,13 @@ class Regressor:
         self.loss_function = loss_function
         self.best_params = None
 
-    def fit_all(self, ds, k):
+    def fit_all(self, ds, k, verbose):
         x,y = ds.get_data()
         self.losses = np.zeros((len(self.parameters), k))
         
         cvlosses = np.zeros(k);
         
         for i in range(len(self.parameters)):
-            print(self.name + " parameter " + str(i+1) + "/" + str(len(self.parameters)) + " done")
             l = 0;
             for train_index, test_index in ds.generate_cv(k=k):
                 cvlosses[l], mod = self.fit_one(y.loc[train_index], 
@@ -26,6 +25,7 @@ class Regressor:
                                                 param_i=i)
                 l +=1;
                 
+            if verbose >= 2: print(self.name + " parameter " + str(i+1) + "/" + str(len(self.parameters)) + " done")
             self.losses[i,:] = cvlosses
                 
         # set best parameters

@@ -21,10 +21,10 @@ params_knn = [{'n_neighbors': i, 'weights': j} for i in n_neighbors_temp for j i
 params_huber = [{'epsilon':i} for i in np.linspace(1, 2, 6)]
 
 # Params Ridge
-params_ridge = [{'alpha':i} for i in [.1, .9, 1, 2, 4]]
+params_ridge = [{'alpha':i} for i in [2, 4, 8, 12]]
 
 # Params Lasso
-params_lasso = [{'alpha':i} for i in [.1, .9, 1, 2, 4]]
+params_lasso = [{'alpha':i} for i in [2, 4, 8, 12]]
 
 # Params Decistion Tree
 max_depth_temp = [(i+1)*3 for i in range(5)]
@@ -33,43 +33,42 @@ max_features_temp = ["sqrt", "log2", "auto"]
 params_dt = [{'max_depth':i, 'min_samples_split':j, 'max_features':k} for i in max_depth_temp for j in min_samples_split_temp for k in max_features_temp]
 
 # Params Random Forest
-n_estimators_temp = [10, 50, 200]
-max_depth_temp = [10, 50]
-min_samples_split_temp = [2,5]
+n_estimators_temp = [10, 50]
+max_depth_temp = [5, 15]
+min_samples_split_temp = [5]
 params_rf = [{"n_estimators": i, 'max_depth': j, 'min_samples_split': k} for i in n_estimators_temp for j in max_depth_temp for k in min_samples_split_temp]
 
 # Params XGBOOST
-eta_temp = [.01, .05, .1, .2, .3]
-gamma_temp = [0, .2, .5, 1]
-lambda_temp = [1, 1.5, 3, 5]
+eta_temp = [.1, .3]
+gamma_temp = [.2, 1]
+lambda_temp = [1.5, 3]
 
 params_xgb = [{"eta": i, "gamma": j, "lambda": k} for i in eta_temp for j in gamma_temp for k in lambda_temp]
 
 
 ########### MODELS
-models = []
+models_reduced = []
 
 ## ADD MODELS
 # add linear models
-models += [Regressor("OLS", LinearRegression, [{}])]
-models += [Regressor("ThSen", TheilSenRegressor, [{}])] # (very slow)
-models += [Regressor("Huber", HuberRegressor, params_huber)]
+models_reduced += [Regressor("OLS", LinearRegression, [{}])]
+models_reduced += [Regressor("Huber", HuberRegressor, params_huber)]
 
 # ridge and lasso
-models += [Regressor("Ridge", Ridge, params_ridge)]
-models += [Regressor("Lasso", Lasso, params_lasso)]
+models_reduced += [Regressor("Ridge", Ridge, params_ridge)]
+models_reduced += [Regressor("Lasso", Lasso, params_lasso)]
 
 # KNN Regressor
-models += [Regressor("KNN", KNeighborsRegressor, params_knn)]
+models_reduced += [Regressor("KNN", KNeighborsRegressor, params_knn)]
 
 # add tree
-models += [Regressor("DecTree", DecisionTreeRegressor, params_dt)]
+models_reduced += [Regressor("DecTree", DecisionTreeRegressor, params_dt)]
 
 # forest
-models += [Regressor("Forest", RandomForestRegressor, params_rf)]
+models_reduced += [Regressor("Forest", RandomForestRegressor, params_rf)]
 
 # xgboost
-models += [Regressor("XGBoost", xgb.XGBRegressor, params_xgb)]
+models_reduced += [Regressor("XGBoost", xgb.XGBRegressor, params_xgb)]
 
 
-print("Models loaded succesfully on variable 'models'")
+print("Reduced Models loaded succesfully on variable 'models_reduced'")

@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from time import time
 from sklearn.model_selection import KFold
 from scipy import stats
-import pandas as pd
+
 class DataSetting:
     def __init__(self, y, x, models, loss_function, k=5):
         self.y = y
@@ -19,14 +20,14 @@ class DataSetting:
         kf = KFold(n_splits=k)
         return kf.split(self.x)
     
-    def evaluate_all(self):
+    def evaluate_all(self, verbose=2):
+        # 0 ... no outputs, 1 ... output after a each model that is finished, 2 ... all outputs
         begin_all = time()
         for mod in self.models:
             begin = time()
-            mod.fit_all(ds=self,k=self.k)
-            print(mod.name, "done in", np.round(time() - begin, 3), " seconds.")
-            print("\n")
-        print("Everything evaluated in " + str(np.round(time() - begin_all, 3)) + " seconds")
+            mod.fit_all(ds=self,k=self.k,verbose=verbose)
+            if verbose >= 1: print(mod.name, "done in", np.round(time() - begin, 3), " seconds.")
+        print("Everything evaluated in " + str(np.round(time() - begin_all, 3)) + " seconds.\n\n")
             
     def get_data(self):
         return(self.x, self.y)
@@ -49,8 +50,34 @@ class DataSetting:
                 df["Parameters"].append(mod.parameters[i])
         df = pd.DataFrame(df)
         return(df)
-                      
-                      
+    
+    
+    def losses_to_pandas_long(self):
+        losses = self.losses_to_pandas()
+        long = pd.DataFrame({"Algorithm":np.repeat(losses.Algorithm.values, self.k),
+                             "Loss":np.concatenate(losses.Losses.values).ravel()})
+        return(long)
+
+    def min_losses(self):
+        losses = self.losses_to_pandas()
+        mins = losses.groupby("Algorithm")["LossesMean"].min()
+        mins_out = dict(zip(mins.axes[0], mins.values))
+        return(mins_out)
+    
+    def boxplot_losses(self, ax=None, *args):
+        losses_long = self.losses_to_pandas_long()
+        sns.boxplot(losses_long.Algorithm, losses_long.Loss, ax=ax, *args)
+
+    def boxplot_losses_min(self, ax=None, *args):
+        min_losses_id = self.losses_to_pandas().groupby("Algorithm")["LossesMean"].idxmin().values
+        losses = self.losses_to_pandas().iloc[min_losses_id]
+        losses_long = pd.DataFrame({"Algorithm":np.repeat(losses.Algorithm.values, self.k),
+                             "Loss":np.concatenate(losses.Losses.values).ravel()})
+        sns.boxplot(losses_long.Algorithm, losses_long.Loss, ax=ax, *args)
+        
+    def barplot_losses_min(self, ax=None, *args):
+        losses_min = self.min_losses()
+        sns.barplot(list(losses_min.keys()), list(losses_min.values()), ax=ax, *args)
                       
                       
                       
