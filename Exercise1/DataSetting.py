@@ -72,7 +72,7 @@ class DataSetting:
         min_losses_id = self.losses_to_pandas().groupby("Algorithm")["LossesMean"].idxmin().values
         losses = self.losses_to_pandas().iloc[min_losses_id]
         losses_long = pd.DataFrame({"Algorithm":np.repeat(losses.Algorithm.values, self.k),
-                             "Loss":np.concatenate(losses.Losses.values).ravel()})
+                                    "Loss":np.concatenate(losses.Losses.values).ravel()})
         sns.boxplot(losses_long.Algorithm, losses_long.Loss, ax=ax, *args)
         
     def barplot_losses_min(self, ax=None, *args):
