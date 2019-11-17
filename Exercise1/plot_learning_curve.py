@@ -27,6 +27,7 @@ from sklearn.model_selection import ShuffleSplit
 def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,axis = None,
                         n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5)):
     """
+    https://scikit-learn.org/stable/auto_examples/model_selection/plot_learning_curve.html#sphx-glr-auto-examples-model-selection-plot-learning-curve-py
     Generate a simple plot of the test and training learning curve.
 
     Parameters

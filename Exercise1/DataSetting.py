@@ -109,18 +109,18 @@ class DataSetting:
         plt.show()
 
     def plot_model_validation_curves(self,path=''): ##only one model
-        param_range = np.linspace(1,101,20, dtype= np.dtype(np.int16))
+        param_range = np.linspace(2,101,20, dtype= np.dtype(np.int16))
         train_scores, test_scores = validation_curve(
             self.models[0].set_params(self.models[0].parameters[self.models[0].best_params]), self.x, self.y,
-            param_name="max_depth", param_range=param_range,
+            param_name="alpha", param_range=param_range,
             cv=5,  n_jobs=1)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
         test_scores_std = np.std(test_scores, axis=1)
 
-        plt.title("Validation Curve with Random Forest")
-        plt.xlabel(r"Maximum Depth")
+        plt.title("Validation Curve with Lasso")
+        plt.xlabel(r"Alpha")
         plt.ylabel("Score")
         lw = 2
         plt.plot(param_range, train_scores_mean, label="Training score",
