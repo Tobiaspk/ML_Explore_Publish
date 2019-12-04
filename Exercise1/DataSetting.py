@@ -3,7 +3,11 @@ import pandas as pd
 import seaborn as sns
 from time import time
 from sklearn.model_selection import KFold
+from plot_learning_curve import *
 from scipy import stats
+import matplotlib.patches as mpatches
+from sklearn.model_selection import validation_curve
+
 
 class DataSetting:
     def __init__(self, y, x, models, loss_function, k=5):
@@ -78,6 +82,66 @@ class DataSetting:
     def barplot_losses_min(self, ax=None, *args):
         losses_min = self.min_losses()
         sns.barplot(list(losses_min.keys()), list(losses_min.values()), ax=ax, *args)
+
+    def plot_model_learning_curves(self, path = ''):
+        k = 0
+        size = sum((len(mod.parameters)>1) for mod in self.models)
+        fig, axes = plt.subplots(2,size, sharex='col', sharey='row')
+
+        for mod in self.models:
+            if(len(mod.parameters) >1):
+                tempModel = mod.set_params(mod.parameters[mod.best_params])
+                title = mod.name + ": best Parameters"
+                plot_learning_curve(tempModel, title, self.x, self.y, axis = axes[0,k])
+
+                tempModel = mod.set_params(mod.parameters[mod.worst_params])
+                title = mod.name + ": worst Parameters"
+                plot_learning_curve(tempModel, title, self.x, self.y, axis = axes[1,k])
+
+                k += 1
+
+        red_patch = mpatches.Patch(color='red', label='Training score')
+        green_patch = mpatches.Patch(color='green', label='Cross-validation score')
+        fig.legend(handles=[red_patch,green_patch])
+        fig.text(0.5, 0.04, 'Training Examples', ha='center')
+        fig.text(0.04, 0.5, 'Score', va='center', rotation='vertical')
+        plt.savefig(path)
+        plt.show()
+
+    def plot_model_validation_curves(self,path=''): ##only one model
+        param_range = np.linspace(2,101,20, dtype= np.dtype(np.int16))
+        train_scores, test_scores = validation_curve(
+            self.models[0].set_params(self.models[0].parameters[self.models[0].best_params]), self.x, self.y,
+            param_name="alpha", param_range=param_range,
+            cv=5,  n_jobs=1)
+        train_scores_mean = np.mean(train_scores, axis=1)
+        train_scores_std = np.std(train_scores, axis=1)
+        test_scores_mean = np.mean(test_scores, axis=1)
+        test_scores_std = np.std(test_scores, axis=1)
+
+        plt.title("Validation Curve with Lasso")
+        plt.xlabel(r"Alpha")
+        plt.ylabel("Score")
+        lw = 2
+        plt.plot(param_range, train_scores_mean, label="Training score",
+                     color="darkorange", lw=lw)
+        plt.fill_between(param_range, train_scores_mean - train_scores_std,
+                         train_scores_mean + train_scores_std, alpha=0.2,
+                         color="darkorange", lw=lw)
+        plt.plot(param_range, test_scores_mean, label="Cross-validation score",
+                     color="navy", lw=lw)
+        plt.fill_between(param_range, test_scores_mean - test_scores_std,
+                         test_scores_mean + test_scores_std, alpha=0.2,
+                         color="navy", lw=lw)
+        plt.legend(loc="best")
+        plt.show()
+
+
+
+
+
+
+
                       
                       
                       

@@ -51,24 +51,25 @@ models_reduced = []
 
 ## ADD MODELS
 # add linear models
-models_reduced += [Regressor("OLS", LinearRegression, [{}])]
-models_reduced += [Regressor("Huber", HuberRegressor, params_huber)]
+# models_reduced += [Regressor("OLS", LinearRegression, [{}])]
+# models_reduced += [Regressor("Huber", HuberRegressor, params_huber)]
 
 # ridge and lasso
-models_reduced += [Regressor("Ridge", Ridge, params_ridge)]
+# models_reduced += [Regressor("Ridge", Ridge, params_ridge)]
 models_reduced += [Regressor("Lasso", Lasso, params_lasso)]
-
+#
 # KNN Regressor
-models_reduced += [Regressor("KNN", KNeighborsRegressor, params_knn)]
+#models_reduced += [Regressor("KNN", KNeighborsRegressor, params_knn)]
 
-# add tree
-models_reduced += [Regressor("DecTree", DecisionTreeRegressor, params_dt)]
-
-# forest
-models_reduced += [Regressor("Forest", RandomForestRegressor, params_rf)]
-
-# xgboost
-models_reduced += [Regressor("XGBoost", xgb.XGBRegressor, params_xgb)]
+# # add tree
+#models_reduced += [Regressor("DecTree", DecisionTreeRegressor, params_dt)]
+#
+# # forest
+#models_reduced += [Regressor("Forest", RandomForestRegressor, params_rf)]
+#
+# # xgboost
+#models_reduced += [Regressor("XGBoost", xgb.XGBRegressor, params_xgb)]
+models = models_reduced
 
 
 print("Reduced Models loaded succesfully on variable 'models_reduced'")

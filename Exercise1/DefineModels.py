@@ -3,7 +3,7 @@ from DataSetting import *
 from Regressor import * 
 from HelpFunctions import *
 
-from sklearn.linear_model import LinearRegression, TheilSenRegressor, RANSACRegressor, HuberRegressor, Ridge, Lasso
+from sklearn.linear_model import LinearRegression, TheilSenRegressor, RANSACRegressor, HuberRegressor, Ridge, Lasso, RidgeCV, LassoCV, BayesianRidge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsRegressor
@@ -33,6 +33,7 @@ max_features_temp = ["sqrt", "log2", "auto"]
 params_dt = [{'max_depth':i, 'min_samples_split':j, 'max_features':k} for i in max_depth_temp for j in min_samples_split_temp for k in max_features_temp]
 
 # Params Random Forest
+#<<<<<<< Updated upstream
 n_estimators_temp = [10, 50, 200]
 max_depth_temp = [10, 50]
 min_samples_split_temp = [2,5]
@@ -47,18 +48,46 @@ params_xgb = [{"eta": i, "gamma": j, "lambda": k} for i in eta_temp for j in gam
 
 
 ########### MODELS
+#=======
+n_estimators_temp = np.linspace(100, 1000, 2, dtype= np.dtype(np.int16))  #10
+max_depth_temp = np.linspace(10, 100, 2) #10
+min_samples_split_temp = [2,5]# [2, 5, 8, 11]
+min_samples_leaf_temp = [1]# [1, 3, 5]
+params_rf = [{"n_estimators":i, 'max_depth':j, 'min_samples_split':k, 'min_samples_leaf':l} for i in n_estimators_temp for j in max_depth_temp for k in min_samples_split_temp for l in min_samples_leaf_temp]
+#params_rf = [{"n_estimators": 100, 'max_depth': 10, 'min_samples_split': 2, 'min_samples_leaf':1}]
+
+# Params XGBOOST
+eta_temp = np.linspace(0.01, 0.3, 2) #10
+max_depth_temp = np.linspace(3, 8, 2, dtype= np.dtype(np.int16)) #8
+gamma_temp = np.linspace(0, 0.2, 2) #10
+subsample_temp = np.linspace(0.5, 1, 2) #6
+colsample_bytree_temp = np.linspace(0.5, 1, 2) #6
+alpha_temp = np.linspace(0, 0.1, 2) #11
+min_child_weight_temp = np.linspace(1, 20, 2) #10
+
+params_xgb = [{'objective':  'reg:squarederror','eta':i, 'max_depth':j, 'gamma':k, 'subsample':l, 'colsample_bytree':m, 'alpha':n, 'min_child_weight':o} for i in eta_temp for j in max_depth_temp for k in gamma_temp for l in subsample_temp for m in colsample_bytree_temp for n in alpha_temp for o in min_child_weight_temp]
+#params_xgb = [{'eta':0.02, 'max_depth':3, 'gamma':0, 'subsample':0.5, 'colsample_bytree':0.5, 'alpha':0, 'min_child_weight': 1}]
+#>>>>>>> Stashed changes
 models = []
 
-## ADD MODELS
-# add linear models
-models += [Regressor("OLS", LinearRegression, [{}])]
-models += [Regressor("ThSen", TheilSenRegressor, [{}])] # (very slow)
+# ## ADD MODELS
+# # add linear models
+# models += [Regressor("OLS", LinearRegression, [{}])]
+# models += [Regressor("ThSen", TheilSenRegressor, [{}])] # (very slow)
 models += [Regressor("Huber", HuberRegressor, params_huber)]
-
-# ridge and lasso
+#
+# # ridge and lasso
+# #<<<<<<< Updated upstream
 models += [Regressor("Ridge", Ridge, params_ridge)]
 models += [Regressor("Lasso", Lasso, params_lasso)]
-
+# #=======
+# models += [Regressor("Ridge", RidgeCV, params_ridge)]
+# models += [Regressor("Lasso", LassoCV, params_lasso)]
+# #
+# # Bayesian Ridge
+# models += [Regressor("BayRidge", BayesianRidge, [{}])]
+# #>>>>>>> Stashed changes
+#
 # KNN Regressor
 models += [Regressor("KNN", KNeighborsRegressor, params_knn)]
 
@@ -69,7 +98,11 @@ models += [Regressor("DecTree", DecisionTreeRegressor, params_dt)]
 models += [Regressor("Forest", RandomForestRegressor, params_rf)]
 
 # xgboost
+#<<<<<<< Updated upstream
 models += [Regressor("XGBoost", xgb.XGBRegressor, params_xgb)]
 
 
 print("Models loaded succesfully on variable 'models'")
+#=======
+#models += [Regressor("XGBoost", xgb.XGBRegressor, params_xgb)]
+#>>>>>>> Stashed changes

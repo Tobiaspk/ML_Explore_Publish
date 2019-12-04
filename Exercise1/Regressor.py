@@ -8,6 +8,7 @@ class Regressor:
         self.losses = np.zeros(len(parameters))
         self.loss_function = loss_function
         self.best_params = None
+        self.worst_params = None
 
     def fit_all(self, ds, k, verbose):
         x,y = ds.get_data()
@@ -29,7 +30,8 @@ class Regressor:
             self.losses[i,:] = cvlosses
                 
         # set best parameters
-        self.best_params = np.argmin(np.mean(self.losses, 0))
+        self.best_params = np.argmin(np.mean(self.losses, 1)) ## calculate average among CVs
+        self.worst_params = np.argmax(np.mean(self.losses, 1))
     
     def fit_one(self, y, x, y_test, x_test, param_i):
             # assign parameters
