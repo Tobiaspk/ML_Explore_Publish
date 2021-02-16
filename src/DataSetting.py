@@ -10,6 +10,13 @@ from sklearn.model_selection import validation_curve
 
 
 class DataSetting:
+    """
+    Stores information about the dataset.
+    :param y: Numpy array of dependent variable
+    :param x: Numpy array of independent variables
+    :param models: List of Regressor objects defining the model type and parameter grid
+    :param loss_function: A loss function, that takes (y, prediction) as input.
+    """
     def __init__(self, y, x, models, loss_function, k=5):
         self.y = y
         self.x = x
@@ -21,11 +28,16 @@ class DataSetting:
             mod.loss_function = self.loss_function
         
     def generate_cv(self, k):
+        # generate simple cross validation (many parameters neglected for simplicity)
         kf = KFold(n_splits=k)
         return kf.split(self.x)
     
     def evaluate_all(self, verbose=2):
-        # 0 ... no outputs, 1 ... output after a each model that is finished, 2 ... all outputs
+        # Calls methods fit_all() on each regressor model
+        # verbose:
+        # - 0 ... no outputs
+        # - 1 ... output after a each model that is finished
+        # - 2 ... all outputs
         begin_all = time()
         for mod in self.models:
             begin = time()
@@ -34,14 +46,16 @@ class DataSetting:
         print("Everything evaluated in " + str(np.round(time() - begin_all, 3)) + " seconds.\n\n")
             
     def get_data(self):
-        return(self.x, self.y)
+        # Return an (dependent, independent) variable tuple
+        return self.x, self.y
 
     def normalize_data(self):
+        # Scale all x variables to mean 0, variance 1
         normX = (self.x-self.x.mean())/self.x.std() ##if regressor doesnt normalize data
         self = normX;
 
-
     def losses_to_pandas(self):
+        # Collect all losses and return them in an exhaustive pandas dataframe
         colnames = ("Algorithm", "Losses", "LossesMean", "LossesSD", "Parameters")
         df = dict(zip(colnames, [[] for i in range(len(colnames))]))
         
@@ -57,33 +71,38 @@ class DataSetting:
     
     
     def losses_to_pandas_long(self):
+        # Transforms all losses into a long format
         losses = self.losses_to_pandas()
         long = pd.DataFrame({"Algorithm":np.repeat(losses.Algorithm.values, self.k),
                              "Loss":np.concatenate(losses.Losses.values).ravel()})
         return(long)
 
     def min_losses(self):
+        # Get minimum loss for each algorithm
         losses = self.losses_to_pandas()
         mins = losses.groupby("Algorithm")["LossesMean"].min()
         mins_out = dict(zip(mins.axes[0], mins.values))
         return(mins_out)
     
     def boxplot_losses(self, ax=None, *args):
+        # Display boxplots of the losses of all algorithms
         losses_long = self.losses_to_pandas_long()
         sns.boxplot(losses_long.Algorithm, losses_long.Loss, ax=ax, *args)
 
     def boxplot_losses_min(self, ax=None, *args):
+        # Display boxplots of the losses of the best parameter settings
         min_losses_id = self.losses_to_pandas().groupby("Algorithm")["LossesMean"].idxmin().values
         losses = self.losses_to_pandas().iloc[min_losses_id]
         losses_long = pd.DataFrame({"Algorithm":np.repeat(losses.Algorithm.values, self.k),
                                     "Loss":np.concatenate(losses.Losses.values).ravel()})
         sns.boxplot(losses_long.Algorithm, losses_long.Loss, ax=ax, *args)
         
-    def barplot_losses_min(self, ax=None, *args):
+    def barplot_losses_min2(self, ax=None, *args):
         losses_min = self.min_losses()
         sns.barplot(list(losses_min.keys()), list(losses_min.values()), ax=ax, *args)
 
     def plot_model_learning_curves(self, path = ''):
+        # Plot the learning curves of the models
         k = 0
         size = sum((len(mod.parameters)>1) for mod in self.models)
         fig, axes = plt.subplots(2,size, sharex='col', sharey='row')
@@ -108,7 +127,8 @@ class DataSetting:
         plt.savefig(path)
         plt.show()
 
-    def plot_model_validation_curves(self,path=''): ##only one model
+    def plot_model_validation_curves(self,path=''): 
+        # Plot the validation curve for only one model
         param_range = np.linspace(2,101,20, dtype= np.dtype(np.int16))
         train_scores, test_scores = validation_curve(
             self.models[0].set_params(self.models[0].parameters[self.models[0].best_params]), self.x, self.y,

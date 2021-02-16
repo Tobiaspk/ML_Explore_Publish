@@ -1,6 +1,13 @@
 import numpy as np
 
 class Regressor:
+    """
+    Wraps a regressor to simplify working in this framework
+    :param name: Name of the model
+    :param model: Class of the respective model (for example LinearRegression from sklearn.linear_model)
+    :param parameters: List of dictionaries of parameters (forexample params=[{'max_depth':5}, {'max_depth':10}])
+    :param loss_function: Will be filled depending on datasetting.
+    """
     def __init__(self, name, model, parameters, loss_function=None):
         self.name = name
         self.model = model
@@ -11,6 +18,10 @@ class Regressor:
         self.worst_params = None
 
     def fit_all(self, ds, k, verbose):
+        # For each parameter setting fit and evaluate fit using k-fold cross validation
+        # param ds: DataSetting instance
+        # param k: k-fold cross validation
+        # verbose: print outputs after each iteration if >= 2
         x,y = ds.get_data()
         self.losses = np.zeros((len(self.parameters), k))
         
@@ -34,35 +45,36 @@ class Regressor:
         self.worst_params = np.argmax(np.mean(self.losses, 1))
     
     def fit_one(self, y, x, y_test, x_test, param_i):
-            # assign parameters
-            param = self.parameters[param_i]
-            
-            # set parameters
-            model_temp = self.set_params(param=param)
-            
-            # fit model
-            model_temp.fit(y=y, X=x)
-            
-            # make prediction
-            prediction = model_temp.predict(x_test)
-            
-            # evaluate and save loss
-            loss = self.get_loss(y_test, prediction)
-            
-            # return loss and model
-            return(loss, model_temp)
+        # Fit one parameter settings
+        # assign parameters
+        param = self.parameters[param_i]
+        
+        # set parameters
+        model_temp = self.set_params(param=param)
+        
+        # fit model
+        model_temp.fit(y=y, X=x)
+        
+        # make prediction
+        prediction = model_temp.predict(x_test)
+        
+        # evaluate and save loss
+        loss = self.get_loss(y_test, prediction)
+        
+        # return loss and model
+        return(loss, model_temp)
     
     def set_params(self, param):
+        # Set the temporary parameters of the model
         # parameters must be dict
         if (type(param) != dict):
             print("Parameters must be type 'dict'")
-            return(0)
+            return 0
         
         # set parameter to model
         model_new = self.model(**param)
-        return(model_new)
+        return model_new
         
     def get_loss(self, y, prediction):
-        # apply loss function
-        loss = self.loss_function(y, prediction)
-        return(loss)
+        # Apply loss function
+        return self.loss_function(y, prediction)
