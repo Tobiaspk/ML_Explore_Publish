@@ -12,8 +12,11 @@ Easily explore parameters and models of sklearn, XGBoost, etc. using a group of 
 
 ## Advantage
 
-A set of regressors and parameters can easily be extended and experiments can be conducted in a controlled manner. The same settings can be applied to different datasets easily.
+A set of regressors and parameters can easily be extended and experiments can be conducted in a controlled manner. The same settings can be applied to different datasets easily. Easy plots of progress with respect to different variables.
 
+|Example Validation Curve|Example Learning Curves| 
+| ------------- |-------------|
+|![](./plots/Auto/ValidationCurve_minSamplesSplitDecisionTree.png)|![](./plots/FaceBook/LearningCurveFaceBook.png)|
 ## Disadvantage
 
 Parallelisation not implemented. Breaking out of the predefined framework requires reworking the imported classes. 
